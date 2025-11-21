@@ -1,0 +1,13 @@
+{
+  "services": [
+    {
+      "instances": 2,
+      "name": "infocaption-app",
+      "domains": ["ic.jaha.it"],
+      "appPort": 80,
+      "env": {
+        "VITE_API_TOKEN": ""
+      }
+    }
+  ]
+}

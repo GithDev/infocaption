@@ -1,0 +1,36 @@
+name: Deployment
+
+on:
+  push:
+    branches: [master]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Inject VITE_API_TOKEN from secret
+        run: |
+          jq '.services[0].env.VITE_API_TOKEN = "${{ secrets.API_TOKEN }}"' deploy-prod.json > deploy-prod.tmp.json
+          mv deploy-prod.tmp.json deploy-prod.json
+
+      - name: Add SSH key
+        run: echo '${{ secrets.SSH_KEY_BLACKBOX }}' > ../ssh_key.pem && chmod 600 ../ssh_key.pem
+
+      - name: Deploy prod
+        if: github.ref == 'refs/heads/master'
+        run: |
+          wget -N https://raw.githubusercontent.com/lagenhetsbyte/build-scripts/master/blackbox/deploy-private.sh && bash deploy-private.sh \
+          REPO="ic-app" \
+          INSTRUCTION_FILE="./deploy-prod.json" \
+          HOST="blackbox.jaha.it" \
+          USER="jahaitadmin" \
+          REGISTRY_DOMAIN="registry.jaha.it" \
+          IMAGE_TAG="${{ github.run_number }}" \
+          REGISTRY_USER="${{ secrets.DOCKER_REGISTRY_USER }}" \
+          REGISTRY_PASSWORD="${{ secrets.DOCKER_REGISTRY_PASSWORD }}" \
+          SSH_KEY_DIR="../ssh_key.pem"
