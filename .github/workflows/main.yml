@@ -15,7 +15,7 @@ jobs:
 
       - name: Write secrets to .env file
         run: |
-          echo "VITE_API_TOKEN=${{ secrets.env }}" > .env
+          echo "${{ secrets.env }}" >> .env
           chmod 600 .env
 
       - name: Add SSH key
