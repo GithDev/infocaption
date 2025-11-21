@@ -13,10 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Inject VITE_API_TOKEN from secret
+      - name: Write secrets to .env file
         run: |
-          jq '.services[0].env.VITE_API_TOKEN = "${{ secrets.API_TOKEN }}"' deploy-prod.json > deploy-prod.tmp.json
-          mv deploy-prod.tmp.json deploy-prod.json
+          echo "VITE_API_TOKEN=${{ secrets.env }}" > .env
+          chmod 600 .env
 
       - name: Add SSH key
         run: echo '${{ secrets.SSH_KEY_BLACKBOX }}' > ../ssh_key.pem && chmod 600 ../ssh_key.pem
