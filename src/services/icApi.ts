@@ -14,11 +14,6 @@ const apiClient = axios.create({
   },
 });
 
-// Only set baseURL in production, use proxy in development
-if (!import.meta.env.DEV) {
-  apiClient.defaults.baseURL = config.apiUrl;
-}
-
 function buildSearchParams(options: GuideSearchOptions) {
   const params: Record<string, unknown> = {};
 
