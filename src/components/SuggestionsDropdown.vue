@@ -89,6 +89,7 @@ let timeout: ReturnType<typeof setTimeout>;
 watch(
   () => props.query,
   () => {
+    hide();
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       getSuggestions();
