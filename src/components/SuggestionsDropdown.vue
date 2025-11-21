@@ -2,10 +2,10 @@
   <BaseDropdown
     v-if="anchor && isVisible"
     :items="suggestions"
-    :isVisible="isVisible"
+    :visible="isVisible"
     :anchor="anchor"
     @select="handleSelect"
-    @close="hide()"
+    @close="suggestions = []"
   />
 </template>
 
@@ -29,6 +29,7 @@ interface Props {
   query: string;
   selectedTypes?: number[];
   anchor: HTMLElement | null;
+  visible?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -39,16 +40,20 @@ const emit = defineEmits<{
 const suggestions = ref<DropdownItem[]>([]);
 const originalSuggestions = ref<SuggestResultItem[]>([]);
 const isLoadingSuggestions = ref(false);
-const isVisible = ref(false);
+import { computed } from "vue";
+
+const isVisible = computed(() => {
+  return !!props.visible && suggestions.value.length > 0;
+});
 
 async function getSuggestions() {
   if (!props.query.trim() || props.query.length < 2) {
     suggestions.value = [];
-    hide();
     return;
   }
 
   isLoadingSuggestions.value = true;
+
   try {
     const response = await suggestGuides(props.query, {
       types: props.selectedTypes || [],
@@ -60,13 +65,9 @@ async function getSuggestions() {
       id: index,
       label: suggestion.key,
     }));
-
-    isVisible.value = suggestions.value.length > 0;
   } catch (error) {
     handleError(error, "Kunde inte ladda förslag");
-
     suggestions.value = [];
-    hide();
   } finally {
     isLoadingSuggestions.value = false;
   }
@@ -78,18 +79,14 @@ function handleSelect(id: number) {
     emit("select", suggestItem);
   }
 
-  hide();
-}
-
-function hide() {
-  isVisible.value = false;
+  suggestions.value = [];
 }
 
 let timeout: ReturnType<typeof setTimeout>;
 watch(
   () => props.query,
   () => {
-    hide();
+    suggestions.value = [];
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       getSuggestions();
