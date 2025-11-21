@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div
-      v-if="isVisible && items.length > 0"
+      v-if="visible && items.length > 0"
       class="absolute bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden"
       :style="dropdownStyles"
       ref="dropdownRef"
@@ -32,7 +32,7 @@ interface DropdownItem {
 
 interface Props {
   items: DropdownItem[];
-  isVisible: boolean;
+  visible: boolean;
   anchor: HTMLElement | null;
 }
 
@@ -73,7 +73,7 @@ const handleClickOutside = (e: MouseEvent) => {
 };
 
 watch(
-  () => props.isVisible,
+  () => props.visible,
   async (isVisible) => {
     if (isVisible) {
       await nextTick();
