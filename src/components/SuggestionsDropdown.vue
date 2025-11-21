@@ -16,6 +16,8 @@ import BaseDropdown from "@/components/base/BaseDropdown.vue";
 import { useErrorHandler } from "@/composables/Error/useErrorHandler";
 import type { SuggestResultItem } from "@/types/Types";
 
+const debounceDelayMs = 300;
+
 const { handleError } = useErrorHandler();
 
 interface DropdownItem {
@@ -83,14 +85,14 @@ function hide() {
   isVisible.value = false;
 }
 
-let timeout: number;
+let timeout: ReturnType<typeof setTimeout>;
 watch(
   () => props.query,
   () => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       getSuggestions();
-    }, 500);
+    }, debounceDelayMs);
   },
 );
 </script>
