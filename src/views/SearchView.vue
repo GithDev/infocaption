@@ -16,8 +16,14 @@
 
           <BaseButton
             type="submit"
-            class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+            :class="[
+              'px-5 py-3 rounded-lg font-medium transition-colors',
+              isQueryDirty
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed',
+            ]"
             :isLoading="isLoading"
+            :disabled="!isQueryDirty || isLoading"
           >
             Sök
           </BaseButton>
@@ -99,6 +105,10 @@ const selectedGuideTypes = ref<number[]>([]);
 const isLoading = ref(false);
 const isLoadingNewPage = ref(false);
 
+const isQueryDirty = computed(() => {
+  return lastQuery.value !== query.value;
+});
+
 const isPaginationVisible = computed(() => {
   return results.value && results.value.length !== 0;
 });
@@ -117,7 +127,7 @@ const GuideTypePillarItems = computed(() => {
 const isInitialLoad = computed(() => results.value === null && isLoading.value);
 
 async function runSearch(page = 1) {
-  if (lastQuery.value != query.value) {
+  if (isQueryDirty.value) {
     // New search
   } else if (page !== currentPage.value) {
     // Another page
