@@ -34,7 +34,7 @@
               ? 'border-blue-500 text-blue-600'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
           "
-          @click="goToPage(p as number)"
+          @click="goToPage(p)"
         >
           {{ p }}
         </button>
@@ -101,9 +101,11 @@ const pagesToShow = computed((): (number | string)[] => {
   return pages;
 });
 
-function goToPage(page: number) {
-  if (page < 1 || page > props.totalPages) {
+function goToPage(page: number | string) {
+  if (typeof page !== "number" || page < 1 || page > props.totalPages) {
     return;
   }
+
+  emit("change", page);
 }
 </script>
