@@ -29,10 +29,12 @@ defineProps<Props>();
 
   opacity: 1;
   transition: opacity 0.6s ease;
+  pointer-events: none;
 }
 
 .hide {
   opacity: 0 !important;
+  pointer-events: none;
 }
 
 .fadeIn {

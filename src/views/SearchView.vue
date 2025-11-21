@@ -32,6 +32,7 @@
             :query="query"
             :selected-types="selectedGuideTypes"
             :anchor="inputRef"
+            :visible="isQueryDirty"
             @select="handleSuggestionSelect"
           />
         </form>
@@ -61,7 +62,6 @@
           class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition flex gap-4"
         />
       </div>
-      <div v-else-if="isInitialLoad" class="text-center text-gray-500 py-8">Laddar guider...</div>
       <p v-else-if="!isLoading && results !== null" class="text-gray-500">Inga guider hittades.</p>
     </section>
 
@@ -77,7 +77,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { getFilterOptions, searchGuides } from "@/services/icApi";
 import type { FilterOptionsResponse, GuideSearchHit, SuggestResultItem } from "@/types/Types";
 import { useErrorHandler } from "@/composables/Error/useErrorHandler";
@@ -98,7 +98,7 @@ const totalHits = ref(0);
 const lastQuery = ref("");
 const results = ref<GuideSearchHit[] | null>(null);
 
-const inputRef = ref(null);
+const inputRef = ref<HTMLInputElement | null>(null);
 const filterOptions = ref<FilterOptionsResponse>({} as FilterOptionsResponse);
 const selectedGuideTypes = ref<number[]>([]);
 
@@ -123,8 +123,6 @@ const GuideTypePillarItems = computed(() => {
     label: guideType.name,
   }));
 });
-
-const isInitialLoad = computed(() => results.value === null && isLoading.value);
 
 async function runSearch(page = 1) {
   if (isQueryDirty.value) {
@@ -175,7 +173,11 @@ function handleSuggestionSelect(suggestItem: SuggestResultItem) {
   window.open(suggestItem.fullURL, "_blank");
 }
 
-onMounted(() => {
-  getFilterOptionsData();
+onMounted(async () => {
+  await getFilterOptionsData();
+  await nextTick();
+
+  inputRef.value?.focus();
+  inputRef.value?.select?.();
 });
 </script>
